@@ -1,20 +1,9 @@
-# Rapport - Laboratoire 06: Multiplication Matricielle Multithreadée
+
 
 **Cours:** Programmation Concurrente (PCO)  
 **Semestre:** Automne 2025  
-**Date:** 18 Décembre 2025
+**Date:** 18 Décembre 2025  
 **Auteur:** Jonatan Perret et Adrien Marcuard
-
-## Table des matières
-
-1. Introduction
-2. Architecture de la solution
-3. Implémentation détaillée
-4. Tests et vérification
-5. Analyse de performance
-6. Conclusion
-
----
 
 ## 1. Introduction
 
@@ -27,35 +16,7 @@ Ce laboratoire consiste à implémenter une multiplication matricielle optimisé
 - Garantir la réentrance de la fonction `multiply()`
 - Maximiser le parallélisme
 
----
-
 ## 2. Architecture de la solution
-
-### 2.1 Vue d'ensemble
-
-L'architecture suit un modèle **producteur-consommateur** avec délégation de tâches:
-
-```
-┌─────────────────┐
-│   Thread        │  
-│   Principal     │ ──► [Création des jobs] ──┐
-│   (multiply)    │                           │
-└─────────────────┘                           ▼
-                                    ┌──────────────────┐
-                                    │   Buffer         │
-                                    │  (Moniteur de    │
-                                    │   Hoare)         │
-                                    └──────────────────┘
-                                              │
-                     ┌────────────────────────┼────────────────────────┐
-                     ▼                        ▼                        ▼
-              ┌─────────────┐        ┌─────────────┐         ┌─────────────┐
-              │  Worker 1   │        │  Worker 2   │   ...   │  Worker N   │
-              │   Thread    │        │   Thread    │         │   Thread    │
-              └─────────────┘        └─────────────┘         └─────────────┘
-```
-
-### 2.2 Composants principaux
 
 #### **ComputeParameters<T>**
 Structure contenant les paramètres nécessaires pour calculer un bloc:
@@ -76,8 +37,6 @@ Classe principale gérant:
 - Pool de threads workers
 - Décomposition en blocs
 - Coordination des calculs
-
----
 
 ## 3. Implémentation détaillée
 
@@ -188,8 +147,6 @@ Cette approche compense l'absence de `broadcast` dans les moniteurs de Hoare, o�
 for (auto& thread : threads)
     thread->join()
 ```
-
----
 
 ## 4. Tests et vérification
 
@@ -342,8 +299,6 @@ Tous les tests passent sous cette limite, confirmant l'absence d'interblocage.
 3. **Robustesse:** Tests de réentrance avec threads concurrents
 4. **Absence de deadlock:** Timeout de 30 secondes via `CHECK_DURATION`
 
----
-
 ## 5. Analyse de performance
 
 ### 5.1 Résultats obtenus
@@ -352,23 +307,23 @@ Tous les tests passent sous cette limite, confirmant l'absence d'interblocage.
 |------------------------|---------|-------|---------------|------------|
 | SingleThread           | 1       | 5×5   | ~17%          | 1211       |
 | Simple                 | 4       | 5×5   | ~287%         | 797        |
-| Reentering (×2)        | 4       | 5×5   | 112-284%      | 941        |
+| Reentering (×2)        | 4       | 5×5   | ~284%         | 941        |
 | ManyThreads            | 16      | 5×5   | ~712%         | 715        |
 | ManyBlocks             | 4       | 10×10 | ~316%         | 782        |
-| MultipleReentering (×4)| 4       | 5×5   | 6-288%        | 1248       |
+| MultipleReentering (×4)| 4       | 5×5   | ~288%         | 1248       |
 
 ### 5.2 Observations
 
-**Scalabilité:**
-- Avec 4 threads: gain de ~3× (proche de l'idéal sur 4 coeurs)
-- Avec 16 threads: gain de ~7× (hyperthreading efficace)
+**Scalabilité:**  
+- Avec 4 threads: gain de ~3×  
+- Avec 16 threads: gain de ~7× (saturation des coeurs)
 
-**Granularité:**
-- Blocs 5×5 (25 jobs): Bon équilibre
+**Granularité:**  
+- Blocs 5×5 (25 jobs): Bon équilibre  
 - Blocs 10×10 (100 jobs): Légèrement meilleur pour distribution de charge
 
-**Réentrance:**
-- Performance diminue légèrement avec contention élevée
+**Réentrance:**  
+- Performance diminue légèrement avec contention élevée  
 - Mais reste fonctionnelle et correcte
 
 ### 5.3 Facteurs limitants
@@ -377,29 +332,10 @@ Tous les tests passent sous cette limite, confirmant l'absence d'interblocage.
 2. **Contention mémoire:** Accès concurrent aux matrices A et B (lecture)
 3. **Granularité des blocs:** Trop petits → overhead, trop grands → déséquilibre de charge
 
----
-
-## 6. Conclusion
-
-### 6.1 Objectifs atteints
-
-✅ **Décomposition par blocs** fonctionnelle et correcte
-✅ **Moniteur de Hoare** correctement implémenté avec `monitorIn()`, `monitorOut()`, `signal()`, `wait()`
-✅ **Réentrance** totale de la fonction `multiply()`
-✅ **Parallélisme maximal** avec distribution dynamique des jobs
-✅ **Tests exhaustifs** incluant cas limites
-✅ **Absence d'interblocage** vérifiée
-
-### 6.2 Points forts de l'implémentation
-
-1. **Gestion élégante de la réentrance** via IDs de computation
-2. **Buffer générique** réutilisable pour d'autres problèmes
-3. **Terminaison robuste** malgré limitations des moniteurs de Hoare
-
-### 6.3 Améliorations possibles
+### 6. Améliorations possibles
 
 1. **Cache blocking:** Optimiser l'accès mémoire pour réduire les cache misses
 2. **Granularité adaptative:** Ajuster automatiquement la taille des blocs
 
-### 6.4 Utilisation de l'IA
-Nous avons utilisé des LLMs dans le cadre ce rapport pour la relecture et la correction grammaticale du texte, ainsi que pour la génération de certaines sections explicatives. Ils ont également aidé à structurer le document de manière claire et cohérente.
+### 7. Utilisation de l'IA
+Nous avons utilisé de l'intelligence artificielle dans le cadre ce rapport pour la relecture et la correction grammaticale du texte, ainsi que pour la génération de certaines sections explicatives. Ils ont également aidé à structurer le document de manière claire et cohérente.
